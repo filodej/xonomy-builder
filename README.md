@@ -1,2 +1,2 @@
 # xonomy-builder
-Schema builder for xonomy XML editor
+Schema builder for [/michmech/xonomy](xonomy) editor
