@@ -11,15 +11,20 @@ var schema = {};
 
 schema.elements = {
 	'root': {
-		children: [
-			{ name: 'first', max: 1 },
-			{ name: 'second',  max: 1 },
-			{ name: 'next' },
-		]
+		attributes: [
+            {name: 'version', mandatory: true}
+        ],
+		children: ['group']
     },
-	'first': {},
-	'second': {},
-	'next': {},
+	'group': {
+		attributes: ['b', 'c'],
+        children: [
+		    { name: 'first', max: 1 },
+		    { name: 'second',  max: 1 },
+        ]
+    },
+	'first': { order: true },
+	'second': { order: true },
 };
 
 function init_editor() {
