@@ -41,5 +41,4 @@ schema.elements = {
 ... and leads to following editor configuration:
 
 <iframe src="https://rawgit.com/filodej/xonomy-builder/master/examples/basic/index.html" 
-		width="640" height="480" style="display:block; margin: 0 auto;">&nbsp;</iframe>
-
+		width="100%" height="100px" style="background-color:#f6f8fa;">&nbsp;</iframe>
