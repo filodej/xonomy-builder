@@ -49,7 +49,7 @@ XonomyBuilder.convertSpec = function(self, def, schema) {
     }
     
     function _getMandatoryAttrs(spec) {
-        var attrs = ( spec && spec.attrs ) || [];
+        var attrs = ( spec && spec.attributes ) || [];
         var result = {};
         attrs.forEach(function (attr) {
             if (attr.mandatory)
@@ -118,8 +118,8 @@ XonomyBuilder.convertSpec = function(self, def, schema) {
         if (def.validate)
             validators.push(def.validate);
 
-        if (def.attrs) {
-            var all = def.attrs.map( (attr) => _isString(attr) ? {name: attr} : attr );
+        if (def.attributes) {
+            var all = def.attributes.map( (attr) => _isString(attr) ? {name: attr} : attr );
             validators.push( (jsElement) => _validateAttrs(jsElement, all) );
         }
         
@@ -156,9 +156,9 @@ XonomyBuilder.convertSpec = function(self, def, schema) {
     }
 
     var attrMenu = [];
-	if (def.attrs) {
+	if (def.attributes) {
         var groups = [];
-		def.attrs.forEach(function(spec) {
+		def.attributes.forEach(function(spec) {
 			if (_isString(spec)) {
 				spec = {name: spec};
             }
@@ -191,7 +191,7 @@ XonomyBuilder.convertSpec = function(self, def, schema) {
         });
 
 		result.attributes = {};
-		def.attrs.forEach(function (spec) {
+		def.attributes.forEach(function (spec) {
 			var name = _isString(spec) ? spec : spec.name;
             var att = { asker: Xonomy.askString };
 
