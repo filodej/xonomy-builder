@@ -21,15 +21,13 @@ XonomyBuilder.validator = function(xschema) {
     };
 };
 
-XonomyBuilder.unknownElement = function(elementName) {
+XonomyBuilder.unknown = function(elementName, attributeName) {
     var menu = [];
-	menu.push({caption: 'Delete <' + elementName + '>', action: Xonomy.deleteElement});
-    return {menu: menu};
-};
-
-XonomyBuilder.unknownAttribute = function(elementName, attributeName) {
-    var menu = [];
-    menu.push({caption: 'Delete @' + attributeName, action: Xonomy.deleteAttribute});
+    if (attributeName) {
+        menu.push({caption: 'Delete @' + attributeName, action: Xonomy.deleteAttribute});
+    } else {
+	    menu.push({caption: 'Delete <' + elementName + '>', action: Xonomy.deleteElement});
+    }
     return {menu: menu};
 };
 
@@ -323,8 +321,8 @@ XonomyBuilder.convertSchema = function(schema) {
 		xschema.elements[key] = xspec;
 	});
     xschema.validate = schema.validate || XonomyBuilder.validator(xschema);
-    xschema.unknownElement = schema.unknownElement || XonomyBuilder.unknownElement;
-    xschema.unknownAttribute = schema.unknownAttribute || XonomyBuilder.unknownAttribute;
+    xschema.unknownElement = schema.unknown || XonomyBuilder.unknown;
+    xschema.unknownAttribute = schema.unknown || XonomyBuilder.unknown;
 	return xschema;
 };
 
