@@ -42,6 +42,10 @@ XonomyBuilder.convertSpec = function(self, def, schema) {
 	    return typeof arg === 'string';
     }
 
+    function _isFunction(arg) {
+	    return typeof arg === 'function';
+    }
+
     function _findKeyByValue(object, value) {
         return Object.keys(object).find(key => object[key] === value);
     }
@@ -203,11 +207,13 @@ XonomyBuilder.convertSpec = function(self, def, schema) {
                     else
                         att.validate = type.validate;
                 }
-                if (type.asker)
-                    att.asker = type.asker;
-                else if (type.options) {
-                    att.asker = type.options.indexOf(null) == -1 ? Xonomy.askPicklist: Xonomy.askOpenPicklist;
-                    att.askerParameter = type.options.filter((opt) => opt !== null);
+                if (type.asker) {
+                    if (_isFunction(type.asker))
+                        att.asker = type.asker;
+                    else {
+                        att.asker = type.asker.indexOf(null) == -1 ? Xonomy.askPicklist: Xonomy.askOpenPicklist;
+                        att.askerParameter = type.asker.filter((opt) => opt !== null);
+                    }
                 }
             }
             if (!spec.mandatory)
@@ -279,7 +285,6 @@ XonomyBuilder.convertSpec = function(self, def, schema) {
             return result;
 		});
 	}
-
 	result.menu = menu;
 	var before = def.before || [];
 	var after = def.after || [];
