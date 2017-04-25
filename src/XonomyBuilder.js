@@ -154,7 +154,8 @@ XonomyBuilder.convertSpec = function(self, def, schema) {
 	}
 
     if (def.menu) {
-        menu = menu.concat(def.menu);
+        menu = menu.concat(def.menu.map(
+            (item) => {caption: item.caption, action: item.action, actionParameter: item.parameter}));
     }
 
     var attrMenu = [];
