@@ -100,10 +100,13 @@ var schema = {
             ]
          },
          group: {
-            attributes: ['b', 'c'],
+            attributes: [
+                {name: 'b', mandatory: true},
+                'c'
+            ],
             children: [
                 {name: 'first', max: 1},
-                {name: 'second',  max: 1}
+                {name: 'second',  max: 2}
             ]
         },
         first: {order: true},
@@ -116,3 +119,17 @@ var schema = {
 
 <iframe src="https://rawgit.com/filodej/xonomy-builder/master/examples/basic/index.html" 
 		width="100%" height="200px" style="background-color:#f6f8fa;">&nbsp;</iframe>
+
+Menus for element and attribute insertion and deletion and drag & drop rules are deduced 
+and specified automatically from given schema.
+
+Note the following facts:
+
+- The `root` element cannot be deleted
+- The `root/@version` attribute cannot be deleted
+- There can be any number of `group` sub-elements
+- The `group/@b` attribute is inserted automatically
+- Each `group` element can contain at most one `first` sub-element
+- Each `group` element can contain at most two `second` sub-elements
+- Elements `second` are always after `first` element (even if they are inserted first)
+
