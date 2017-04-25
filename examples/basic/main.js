@@ -7,24 +7,29 @@ function xml(tag, attrs, text) {
 	return '<' + tag + ' ' + str_attrs + '>'+text+'</' + tag + '>';
 }
 
-var schema = {};
-
-schema.elements = {
-	'root': {
-		attributes: [
-            {name: 'version', mandatory: true}
-        ],
-		children: ['group']
-    },
-	'group': {
-		attributes: ['b', 'c'],
-        children: [
-		    { name: 'first', max: 1 },
-		    { name: 'second',  max: 1 },
-        ]
-    },
-	'first': { order: true },
-	'second': { order: true },
+var schema = {
+    elements: {  
+        root: {
+            attributes: [
+                {name: 'version', mandatory: true}
+            ],
+            children: [
+                'group'
+            ]
+         },
+         group: {
+            attributes: [
+                {name: 'b', mandatory: true},
+                'c'
+            ],
+            children: [
+                {name: 'first', max: 1},
+                {name: 'second',  max: 2}
+            ]
+        },
+        first: {order: true},
+        second: {order: true}
+    }
 };
 
 function init_editor() {
