@@ -45,12 +45,18 @@ XonomyBuilder.convertSpec = function(self, def, schema) {
     var owners = parents.concat(holders);	
 	var menu = [];
 
-    function _isString(arg) {
-	    return typeof arg === 'string';
+    var _isArray = Array.isArray;
+
+    function _isRegExp(re) {
+        return re instanceof RegExp;
+    }
+    
+    function _isString(s) {
+	    return typeof s === 'string';
     }
 
-    function _isFunction(arg) {
-	    return typeof arg === 'function';
+    function _isFunction(f) {
+	    return typeof f === 'function';
     }
 
     function _findKeyByValue(object, value) {
@@ -209,20 +215,27 @@ XonomyBuilder.convertSpec = function(self, def, schema) {
                 var type = schema.types[spec.type];
                 if (!type)
                     throw new Error("Invalid type: "+spec.type);
-                if (type.validate) {
-                    if (type.validate instanceof RegExp)
-                        att.validate = function(jsAttribute) { validate_attr(jsAttribute, type.validate, spec.type); }
-                    else
-                        att.validate = type.validate;
-                }
                 if (type.asker) {
                     if (_isFunction(type.asker))
                         att.asker = type.asker;
                     else {
-                        att.asker = type.asker.indexOf(null) == -1 ? Xonomy.askPicklist: Xonomy.askOpenPicklist;
+                        att.asker = type.asker.indexOf(null) === -1 ? Xonomy.askPicklist: Xonomy.askOpenPicklist;
                         att.askerParameter = type.asker.filter((opt) => opt !== null);
                     }
                 }
+                if (type.validate) {
+                    if (_isRegExp(type.validate))
+                        att.validate = function(jsAttribute) { validate_attr(jsAttribute, type.validate, spec.type); }
+                    else
+                        att.validate = type.validate;
+                } else if (_isArray(type.asker)) {
+                    if (type.asker.indexOf(null) == -1) {
+                        // create validation regex based on array of options
+                        var re = new RegExp('^('+type.asker.join('|')+'$');
+                        att.validate = function(jsAttribute) { validate_attr(jsAttribute, re, spec.type); }
+                    }
+                }
+                
             }
             if (!spec.mandatory)
                 att.menu = [{ caption: 'Delete @' + name, action: Xonomy.deleteAttribute }];
