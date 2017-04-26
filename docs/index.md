@@ -86,7 +86,7 @@ Xonomy.render(xmarkup, xonomy, xschema);
 
 ### Basic Hierarchy
 
-Meta-schema representing a basic XML hierarchy can look as follows:
+*Source schema* representing a basic XML hierarchy can look as follows:
 
 ```js
 var schema = {
@@ -131,4 +131,60 @@ Note the following facts:
 - There can at most two `second` sub-elements
 - The `first/@b` attribute is mandatory and so is inserted automatically
 - Elements `second` are always after `first` element (even if they are inserted sooner)
+
+### Attribute Types
+
+*Source schema* can be extended by adding attribute types:
+
+```js
+var schema = {
+    types: {
+        boolean : { 
+            asker: ['true', 'false'],
+        },
+        length : { 
+            asker: ['10pt', '10px', '10in', '10mm', '10%', null],
+            validate: /^[+-]?([0-9]*\.)?[0-9]+(pt|px|in|pc|mm|cm|em|%)$/
+        }
+    },
+    elements: {  
+        root: {
+            attributes: [
+                {name: 'version', mandatory: true}
+            ],
+            children: [
+                {name: 'first', max: 1},
+                {name: 'second',  max: 2}
+            ]
+         },
+        first: {
+            attributes: [
+                {name: 'a', mandatory: true, value: 'true', type: 'boolean'},
+                {name: 'b', type: 'length'}
+            ],
+            order: true
+        },
+        second: {
+            attributes: ['c'],
+            order: true
+        }
+    }
+};
+```
+
+It then leads to following editor configuration:
+
+<iframe src="https://rawgit.com/filodej/xonomy-builder/master/examples/types/index.html" 
+		width="100%" height="200px" style="background-color:#f6f8fa;">&nbsp;</iframe>
+
+Types influence individual attribute askers as well as attribute validation.
+
+Note the following facts:
+
+- The `boolean` type allows only `true` or `false` value 
+  - `asker` does not provide another possibility
+  - `validate` is computed automatically based on list of valid options
+- The `length` type provides a set of pre-defined values, but allows more
+  - `asker` array contains `null` and so allows an open set of values
+  - `validate` specifies regular expression used for validation
 
