@@ -102,12 +102,13 @@ var schema = {
          },
         first: {
             attributes: [
-                {name: 'b', mandatory: true},
-                'c'
+                {name: 'a', mandatory: true},
+                'b'
             ],
             order: true
         },
         second: {
+            attributes: ['c'],
             order: true
         }
     }

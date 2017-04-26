@@ -1,5 +1,12 @@
 var XonomyBuilder = {};
 
+XonomyBuilder.xml = function(tag, attrs, text) {
+	text = text || '';
+	attrs = attrs || {};
+	var str_attrs = Object.keys(attrs).map((key) => key + '="' + attrs[key] + '"').join(' ');
+	return '<' + tag + ' ' + str_attrs + '>'+text+'</' + tag + '>';
+}
+
 XonomyBuilder.validator = function(xschema) {
     return function(jsElement) {
         //Validate the element:
@@ -233,7 +240,7 @@ XonomyBuilder.convertSpec = function(self, def, schema) {
 			var item = {
 				caption: spec.caption || 'Add <' + spec.name + '>',
 				action: Xonomy.newElementChild,
-				actionParameter: xml(spec.name, _getMandatoryAttrs(schema.elements[spec.name])),
+				actionParameter: XonomyBuilder.xml(spec.name, _getMandatoryAttrs(schema.elements[spec.name])),
 			};
 			item.hideIf = function (jsElement) {
 				if (spec.max && jsElement.getChildElements(spec.name).length >= spec.max)
@@ -275,7 +282,7 @@ XonomyBuilder.convertSpec = function(self, def, schema) {
             if (!wrapper.placeholder)
                 wrapper.placeholder = '$';
             if (wrapper.template === undefined)
-                wrapper.template = xml(wrapper.name, {}, wrapper.placeholder);
+                wrapper.template = XonomyBuilder.xml(wrapper.name, {}, wrapper.placeholder);
 			var result = {
 				caption: "Wrap with <"+wrapper.name+">",
 				action: Xonomy.wrap,
