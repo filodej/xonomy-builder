@@ -231,7 +231,7 @@ XonomyBuilder.convertSpec = function(self, def, schema) {
                 } else if (_isArray(type.asker)) {
                     if (type.asker.indexOf(null) == -1) {
                         // create validation regex based on array of options
-                        var re = new RegExp('^('+type.asker.join('|')+'$');
+                        var re = new RegExp('^('+type.asker.join('|')+')$');
                         att.validate = function(jsAttribute) { validate_attr(jsAttribute, re, spec.type); }
                     }
                 }
