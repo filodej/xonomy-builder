@@ -96,21 +96,20 @@ var schema = {
                 {name: 'version', mandatory: true}
             ],
             children: [
-                'group'
+                {name: 'first', max: 1},
+                {name: 'second',  max: 2}
             ]
          },
-         group: {
+        first: {
             attributes: [
                 {name: 'b', mandatory: true},
                 'c'
             ],
-            children: [
-                {name: 'first', max: 1},
-                {name: 'second',  max: 2}
-            ]
+            order: true
         },
-        first: {order: true},
-        second: {order: true}
+        second: {
+            order: true
+        }
     }
 };
 ```
@@ -127,9 +126,8 @@ Note the following facts:
 
 - The `root` element cannot be deleted
 - The `root/@version` attribute cannot be deleted
-- There can be any number of `group` sub-elements
-- The `group/@b` attribute is inserted automatically
-- Each `group` element can contain at most one `first` sub-element
-- Each `group` element can contain at most two `second` sub-elements
-- Elements `second` are always after `first` element (even if they are inserted first)
+- There can at most one `first` sub-element
+- There can at most two `second` sub-elements
+- The `first/@b` attribute is mandatory and so is inserted automatically
+- Elements `second` are always after `first` element (even if they are inserted sooner)
 

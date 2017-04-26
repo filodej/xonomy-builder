@@ -14,21 +14,20 @@ var schema = {
                 {name: 'version', mandatory: true}
             ],
             children: [
-                'group'
+                {name: 'first', max: 1},
+                {name: 'second',  max: 2}
             ]
          },
-         group: {
+        first: {
             attributes: [
                 {name: 'b', mandatory: true},
                 'c'
             ],
-            children: [
-                {name: 'first', max: 1},
-                {name: 'second',  max: 2}
-            ]
+            order: true
         },
-        first: {order: true},
-        second: {order: true}
+        second: {
+            order: true
+        }
     }
 };
 
