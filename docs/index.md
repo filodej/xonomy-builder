@@ -181,10 +181,10 @@ Types influence individual attribute askers as well as attribute validation.
 
 Note the following facts:
 
-- The `boolean` type allows only `true` or `false` value 
+- The `boolean` type of attribute `@a` allows only `true` or `false` value 
   - `asker` does not provide another possibility
   - `validate` is computed automatically based on list of valid options
-- The `length` type provides a set of pre-defined values, but allows more
+- The `length` type of attribute `@b` provides a set of pre-defined values, but allows more
   - `asker` array contains `null` and so allows an open set of values
   - `validate` specifies regular expression used for validation
 
