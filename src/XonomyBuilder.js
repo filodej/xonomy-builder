@@ -28,6 +28,19 @@ XonomyBuilder.validator = function(xschema) {
     };
 };
 
+XonomyBuilder.validateAttr = function(jsAttribute, re, type) {
+    //Make sure item/@label is not an empty string:
+    if(!jsAttribute.value) {
+        Xonomy.warnings.push({ htmlID: jsAttribute.htmlID, text: "Cannot be empty (type '"+type+"')."});
+        return false;
+    }
+    if (!re.test(jsAttribute.value)) {
+        Xonomy.warnings.push({ htmlID: jsAttribute.htmlID, text: "Invalid format (type '"+type+"')."});
+        return false;
+    }
+    return true;
+};
+
 XonomyBuilder.unknown = function(elementName, attributeName) {
     var menu = [];
     if (attributeName) {
@@ -225,14 +238,14 @@ XonomyBuilder.convertSpec = function(self, def, schema) {
                 }
                 if (type.validate) {
                     if (_isRegExp(type.validate))
-                        att.validate = function(jsAttribute) { validate_attr(jsAttribute, type.validate, spec.type); }
+                        att.validate = function(jsAttribute) { XonomyBuilder.validateAttr(jsAttribute, type.validate, spec.type); }
                     else
                         att.validate = type.validate;
                 } else if (_isArray(type.asker)) {
                     if (type.asker.indexOf(null) == -1) {
                         // create validation regex based on array of options
                         var re = new RegExp('^('+type.asker.join('|')+')$');
-                        att.validate = function(jsAttribute) { validate_attr(jsAttribute, re, spec.type); }
+                        att.validate = function(jsAttribute) { XonomyBuilder.validateAttr(jsAttribute, re, spec.type); }
                     }
                 }
                 
