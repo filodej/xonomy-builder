@@ -52,6 +52,63 @@ XonomyBuilder.mandatoryAttrs = function(spec) {
     return result;
 };
 
+XonomyBuilder.elementValidator = function(validatedSpec) {
+    function _validateChildren(jsElement, allowedElems) {
+        jsElement.children.forEach(function (child) {
+            if (child.type === 'element') {
+                var allowed = allowedElems.filter( (el) => !el.condition || el.condition(jsElement) ).map( (el) => el.name );
+                if (allowed.indexOf(child.name) === -1)
+                    Xonomy.warnings.push({ htmlID: child.htmlID, 
+                                           text: "Unexpected element (allowed: "+allowed.join(', ')+")."});
+            }
+        });
+    }
+
+    function _validateAttrs(jsElement, allowedAttrs) {
+        jsElement.attributes.forEach(function (jsAttribute) {
+            var allowed = allowedAttrs
+                .filter( (attr) => !attr.condition || attr.condition(jsElement) )
+                .map( (attr) => attr.name );
+            if (allowed.indexOf(jsAttribute.name) === -1)
+                Xonomy.warnings.push({ htmlID: jsAttribute.htmlID, 
+                                       text: "Unexpected attribute (allowed: "+allowed.join(', ')+")."});
+        });
+        var missing = [];
+        allowedAttrs.forEach(function(attr) {
+            if (attr.mandatory && !jsElement.getAttribute(attr.name)) {
+                if (!attr.condition || attr.condition(jsElement))
+                    missing.push(attr.name);
+            }
+        });
+        if (missing.length)
+            Xonomy.warnings.push({ htmlID: jsElement.htmlID, text: "Missing mandatory attributes: "+missing.join(', ')+"."});
+    }
+
+    var validators = [];
+    if (validatedSpec.validate)
+        validators.push(validatedSpec.validate);
+
+    if (validatedSpec.attributes) {
+        var all = validatedSpec.attributes.map( (attr) => _isString(attr) ? {name: attr} : attr );
+        validators.push( (jsElement) => _validateAttrs(jsElement, all) );
+    }
+    
+    if (validatedSpec.children !== null || validatedSpec.wrappers) {
+        var tags = [];
+        if (validatedSpec.children)
+            tags = validatedSpec.children.map( (el) => _isString(el) ? {name: el} : el );
+        if (validatedSpec.wrappers)
+            tags = tags.concat(validatedSpec.wrappers.map( (el) => _isString(el) ? {name: el} : el ));
+        validators.push((jsElement) => _validateChildren(jsElement, tags) );
+    }
+
+    if (validators.length > 1)
+        return (jsElement) => validators.forEach( (validator) => validator(jsElement) ); 
+	return validators.length 
+        ? validators[0] 
+        : function() {};
+};
+
 XonomyBuilder.unknown = function(elementName, attributeName) {
     var menu = [];
     if (attributeName) {
@@ -109,63 +166,6 @@ XonomyBuilder.convertSpec = function(self, def, schema) {
         return function (js) {
             return items.every( (item) => item.hideIf(js) );  
         }
-    }
-
-    function _elementValidator(def) {
-        function _validateChildren(jsElement, allowedElems) {
-            jsElement.children.forEach(function (child) {
-                if (child.type === 'element') {
-                    var allowed = allowedElems.filter( (el) => !el.condition || el.condition(jsElement) ).map( (el) => el.name );
-                    if (allowed.indexOf(child.name) === -1)
-                        Xonomy.warnings.push({ htmlID: child.htmlID, 
-                                               text: "Unexpected element (allowed: "+allowed.join(', ')+")."});
-                }
-            });
-        }
-
-        function _validateAttrs(jsElement, allowedAttrs) {
-            jsElement.attributes.forEach(function (jsAttribute) {
-                var allowed = allowedAttrs
-                    .filter( (attr) => !attr.condition || attr.condition(jsElement) )
-                    .map( (attr) => attr.name );
-                if (allowed.indexOf(jsAttribute.name) === -1)
-                    Xonomy.warnings.push({ htmlID: jsAttribute.htmlID, 
-                                           text: "Unexpected attribute (allowed: "+allowed.join(', ')+")."});
-            });
-            var missing = [];
-            allowedAttrs.forEach(function(attr) {
-                if (attr.mandatory && !jsElement.getAttribute(attr.name)) {
-                    if (!attr.condition || attr.condition(jsElement))
-                        missing.push(attr.name);
-                }
-            });
-            if (missing.length)
-                Xonomy.warnings.push({ htmlID: jsElement.htmlID, text: "Missing mandatory attributes: "+missing.join(', ')+"."});
-        }
-
-        var validators = [];
-        if (def.validate)
-            validators.push(def.validate);
-
-        if (def.attributes) {
-            var all = def.attributes.map( (attr) => _isString(attr) ? {name: attr} : attr );
-            validators.push( (jsElement) => _validateAttrs(jsElement, all) );
-        }
-        
-        if (def.children !== null || def.wrappers) {
-            var tags = [];
-            if (def.children)
-                tags = def.children.map( (el) => _isString(el) ? {name: el} : el );
-            if (def.wrappers)
-                tags = tags.concat(def.wrappers.map( (el) => _isString(el) ? {name: el} : el ));
-            validators.push((jsElement) => _validateChildren(jsElement, tags) );
-        }
-
-        if (validators.length > 1)
-            return (jsElement) => validators.forEach( (validator) => validator(jsElement) ); 
-	    return validators.length 
-            ? validators[0] 
-            : function() {};
     }
 
 	if (holders.length) {
@@ -347,7 +347,7 @@ XonomyBuilder.convertSpec = function(self, def, schema) {
     if (owners.length) {
 	    result.canDropTo = owners.map( (owner) => _findKeyByValue(schema.elements, owner) );
     }
-    result.validate = _elementValidator(def);
+    result.validate = XonomyBuilder.elementValidator(elementSpec);
 	return result;
 };
 
