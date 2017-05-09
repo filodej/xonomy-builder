@@ -361,7 +361,7 @@ XonomyBuilder.convertSpec = function(elementName, elementSpec, schema) {
 
 XonomyBuilder.convertSchema = function(schema, preprocess, postprocess) {
     preprocess = preprocess || function(elementName, elementSpec, schema) { return elementSpec; };
-    postprocess = postprocess || function(elementName, xonomySpec) { return xonomySpec; };
+    postprocess = postprocess || function(elementName, xonomySpec, schema) { return xonomySpec; };
     var xschema = {};
     xschema.onchange = schema.onchange || function() {};
     xschema.elements = {};
@@ -369,7 +369,7 @@ XonomyBuilder.convertSchema = function(schema, preprocess, postprocess) {
         var elementSpec = schema.elements[elementName];
         elementSpec = preprocess(elementName, elementSpec, schema);
         var xspec = XonomyBuilder.convertSpec(elementName, elementSpec, schema);
-        xspec = postprocess(elementName, xspec);
+        xspec = postprocess(elementName, xspec, schema);
         xschema.elements[elementName] = xspec;
     });
     xschema.validate = schema.validate || XonomyBuilder.validator(xschema);
