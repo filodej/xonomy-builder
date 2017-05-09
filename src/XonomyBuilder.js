@@ -41,6 +41,16 @@ XonomyBuilder.validateAttr = function(jsAttribute, re, type) {
     return true;
 };
 
+XonomyBuilder.mandatoryAttrs = function(spec) {
+    var attrs = ( spec && spec.attributes ) || [];
+    var result = {};
+    attrs.forEach(function (attr) {
+        if (attr.mandatory)
+            result[attr.name] = attr.value || '?';
+    });
+    return result;
+};
+
 XonomyBuilder.unknown = function(elementName, attributeName) {
     var menu = [];
     if (attributeName) {
@@ -76,16 +86,6 @@ XonomyBuilder.convertSpec = function(self, def, schema) {
         return Object.keys(object).find(key => object[key] === value);
     }
     
-    function _getMandatoryAttrs(spec) {
-        var attrs = ( spec && spec.attributes ) || [];
-        var result = {};
-        attrs.forEach(function (attr) {
-            if (attr.mandatory)
-                result[attr.name] = attr.value || '?';
-        });
-        return result;
-    };
-
     function _getReferences( spec, key ) {
 	    return spec[key]
 		    ? spec[key].map(function (child) { return _isString(child) ? child : child.name; })
@@ -266,7 +266,7 @@ XonomyBuilder.convertSpec = function(self, def, schema) {
 			var item = {
 				caption: spec.caption || 'Add <' + spec.name + '>',
 				action: Xonomy.newElementChild,
-				actionParameter: XonomyBuilder.xml(spec.name, _getMandatoryAttrs(schema.elements[spec.name])),
+				actionParameter: XonomyBuilder.xml(spec.name, XonomyBuilder.mandatoryAttrs(schema.elements[spec.name])),
 			};
 			item.hideIf = function (jsElement) {
 				if (spec.max && jsElement.getChildElements(spec.name).length >= spec.max)
