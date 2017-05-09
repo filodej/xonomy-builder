@@ -8,6 +8,20 @@ XonomyBuilder.xml = function(tag, attrs, text, namespaces) {
     return '<' + tag + ' ' + str_attrs + '>'+text+'</' + tag + '>';
 }
 
+XonomyBuilder.isRegExp = function(re) {
+    return re instanceof RegExp;
+};
+    
+XonomyBuilder.isString = function(s) {
+    return typeof s === 'string';
+};
+
+XonomyBuilder.isFunction = function(f) {
+    return typeof f === 'function';
+};
+
+XonomyBuilder.isArray = Array.isArray;
+
 XonomyBuilder.validator = function(xschema) {
     return function(jsElement) {
         //Validate the element:
@@ -89,16 +103,16 @@ XonomyBuilder.elementValidator = function(validatedSpec) {
         validators.push(validatedSpec.validate);
 
     if (validatedSpec.attributes) {
-        var all = validatedSpec.attributes.map( (attr) => _isString(attr) ? {name: attr} : attr );
+        var all = validatedSpec.attributes.map( (attr) => XonomyBuilder.isString(attr) ? {name: attr} : attr );
         validators.push( (jsElement) => _validateAttrs(jsElement, all) );
     }
     
     if (validatedSpec.children !== null || validatedSpec.wrappers) {
         var tags = [];
         if (validatedSpec.children)
-            tags = validatedSpec.children.map( (el) => _isString(el) ? {name: el} : el );
+            tags = validatedSpec.children.map( (el) => XonomyBuilder.isString(el) ? {name: el} : el );
         if (validatedSpec.wrappers)
-            tags = tags.concat(validatedSpec.wrappers.map( (el) => _isString(el) ? {name: el} : el ));
+            tags = tags.concat(validatedSpec.wrappers.map( (el) => XonomyBuilder.isString(el) ? {name: el} : el ));
         validators.push((jsElement) => _validateChildren(jsElement, tags) );
     }
 
@@ -126,27 +140,13 @@ XonomyBuilder.convertSpec = function(elementName, elementSpec, schema) {
     var owners = parents.concat(holders);   
     var menu = [];
 
-    var _isArray = Array.isArray;
-
-    function _isRegExp(re) {
-        return re instanceof RegExp;
-    }
-    
-    function _isString(s) {
-        return typeof s === 'string';
-    }
-
-    function _isFunction(f) {
-        return typeof f === 'function';
-    }
-
     function _findKeyByValue(object, value) {
         return Object.keys(object).find(key => object[key] === value);
     }
     
     function _getReferences(spec, key) {
         return spec[key]
-            ? spec[key].map(function (child) { return _isString(child) ? child : child.name; })
+            ? spec[key].map(function (child) { return XonomyBuilder.isString(child) ? child : child.name; })
         : [];
     }
 
@@ -189,7 +189,7 @@ XonomyBuilder.convertSpec = function(elementName, elementSpec, schema) {
     if (elementSpec.attributes) {
         var groups = [];
         elementSpec.attributes.forEach(function(attributeSpec) {
-            if (_isString(attributeSpec)) {
+            if (XonomyBuilder.isString(attributeSpec)) {
                 attributeSpec = {name: attributeSpec};
             }
             var value = attributeSpec.value || '?';
@@ -222,7 +222,7 @@ XonomyBuilder.convertSpec = function(elementName, elementSpec, schema) {
 
         result.attributes = {};
         elementSpec.attributes.forEach(function (attributeSpec) {
-            var name = _isString(attributeSpec) ? attributeSpec : attributeSpec.name;
+            var name = XonomyBuilder.isString(attributeSpec) ? attributeSpec : attributeSpec.name;
             var att = { asker: Xonomy.askString };
 
             if (attributeSpec.type) {
@@ -230,7 +230,7 @@ XonomyBuilder.convertSpec = function(elementName, elementSpec, schema) {
                 if (!type)
                     throw new Error("Invalid type: "+attributeSpec.type);
                 if (type.asker) {
-                    if (_isFunction(type.asker))
+                    if (XonomyBuilder.isFunction(type.asker))
                         att.asker = type.asker;
                     else {
                         att.asker = type.asker.indexOf(null) === -1 ? Xonomy.askPicklist: Xonomy.askOpenPicklist;
@@ -238,11 +238,11 @@ XonomyBuilder.convertSpec = function(elementName, elementSpec, schema) {
                     }
                 }
                 if (type.validate) {
-                    if (_isRegExp(type.validate))
+                    if (XonomyBuilder.isRegExp(type.validate))
                         att.validate = function(jsAttribute) { XonomyBuilder.validateAttr(jsAttribute, type.validate, attributeSpec.type); }
                     else
                         att.validate = type.validate;
-                } else if (_isArray(type.asker)) {
+                } else if (XonomyBuilder.isArray(type.asker)) {
                     if (type.asker.indexOf(null) == -1) {
                         // create validation regex based on array of options
                         var re = new RegExp('^('+type.asker.join('|')+')$');
@@ -262,7 +262,7 @@ XonomyBuilder.convertSpec = function(elementName, elementSpec, schema) {
     if (elementSpec.children) {
         var groups = [];
         elementSpec.children.forEach(function(childSpec) {
-            if (_isString(childSpec))
+            if (XonomyBuilder.isString(childSpec))
                 childSpec = {name: childSpec};
             var item = {
                 caption: childSpec.caption || 'Add <' + childSpec.name + '>',
@@ -304,7 +304,7 @@ XonomyBuilder.convertSpec = function(elementName, elementSpec, schema) {
 
     if (elementSpec.wrappers) {
         result.inlineMenu = elementSpec.wrappers.map(function(wrapper) {
-            if (_isString(wrapper))
+            if (XonomyBuilder.isString(wrapper))
                 wrapper = {name: wrapper};
             if (!wrapper.placeholder)
                 wrapper.placeholder = '$';
