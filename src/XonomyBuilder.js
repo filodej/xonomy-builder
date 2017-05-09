@@ -351,13 +351,17 @@ XonomyBuilder.convertSpec = function(elementName, elementSpec, schema) {
 	return result;
 };
 
-XonomyBuilder.convertSchema = function(schema) {
+XonomyBuilder.convertSchema = function(schema, preprocess, postprocess) {
+    preprocess = preprocess || function(elementName, elementSpec, schema) { return elementSpec; };
+    postprocess = postprocess || function(elementName, xonomySpec) { return xonomySpec; };
 	var xschema = {};
     xschema.onchange = schema.onchange || function() {};
 	xschema.elements = {};
     Object.keys(schema.elements).forEach(function (elementName) {
 		var elementSpec = schema.elements[elementName];
+        elementSpec = preprocess(elementName, elementSpec, schema);
 		var xspec = XonomyBuilder.convertSpec(elementName, elementSpec, schema);
+        xspec = postprocess(elementName, xspec);
 		xschema.elements[elementName] = xspec;
 	});
     xschema.validate = schema.validate || XonomyBuilder.validator(xschema);
