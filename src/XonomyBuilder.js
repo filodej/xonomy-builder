@@ -1,8 +1,9 @@
 var XonomyBuilder = {};
 
-XonomyBuilder.xml = function(tag, attrs, text) {
+XonomyBuilder.xml = function(tag, attrs, text, namespaces) {
+    namespaces = namespaces || {};
 	text = text || '';
-	attrs = attrs || {};
+	attrs = Object.assign({}, namespaces, attrs || {});
 	var str_attrs = Object.keys(attrs).map((key) => key + '="' + attrs[key] + '"').join(' ');
 	return '<' + tag + ' ' + str_attrs + '>'+text+'</' + tag + '>';
 }
@@ -266,7 +267,7 @@ XonomyBuilder.convertSpec = function(self, def, schema) {
 			var item = {
 				caption: spec.caption || 'Add <' + spec.name + '>',
 				action: Xonomy.newElementChild,
-				actionParameter: XonomyBuilder.xml(spec.name, XonomyBuilder.mandatoryAttrs(schema.elements[spec.name])),
+				actionParameter: XonomyBuilder.xml(spec.name, XonomyBuilder.mandatoryAttrs(schema.elements[spec.name]), '', schema.namespaces),
 			};
 			item.hideIf = function (jsElement) {
 				if (spec.max && jsElement.getChildElements(spec.name).length >= spec.max)
@@ -308,7 +309,7 @@ XonomyBuilder.convertSpec = function(self, def, schema) {
             if (!wrapper.placeholder)
                 wrapper.placeholder = '$';
             if (wrapper.template === undefined)
-                wrapper.template = XonomyBuilder.xml(wrapper.name, {}, wrapper.placeholder);
+                wrapper.template = XonomyBuilder.xml(wrapper.name, {}, wrapper.placeholder, schema.namespaces);
 			var result = {
 				caption: "Wrap with <"+wrapper.name+">",
 				action: Xonomy.wrap,
