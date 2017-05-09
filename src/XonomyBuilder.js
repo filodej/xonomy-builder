@@ -2,10 +2,10 @@ var XonomyBuilder = {};
 
 XonomyBuilder.xml = function(tag, attrs, text, namespaces) {
     namespaces = namespaces || {};
-	text = text || '';
-	attrs = Object.assign({}, namespaces, attrs || {});
-	var str_attrs = Object.keys(attrs).map((key) => key + '="' + attrs[key] + '"').join(' ');
-	return '<' + tag + ' ' + str_attrs + '>'+text+'</' + tag + '>';
+    text = text || '';
+    attrs = Object.assign({}, namespaces, attrs || {});
+    var str_attrs = Object.keys(attrs).map((key) => key + '="' + attrs[key] + '"').join(' ');
+    return '<' + tag + ' ' + str_attrs + '>'+text+'</' + tag + '>';
 }
 
 XonomyBuilder.validator = function(xschema) {
@@ -104,7 +104,7 @@ XonomyBuilder.elementValidator = function(validatedSpec) {
 
     if (validators.length > 1)
         return (jsElement) => validators.forEach( (validator) => validator(jsElement) ); 
-	return validators.length 
+    return validators.length 
         ? validators[0] 
         : function() {};
 };
@@ -114,17 +114,17 @@ XonomyBuilder.unknown = function(elementName, attributeName) {
     if (attributeName) {
         menu.push({caption: 'Delete @' + attributeName, action: Xonomy.deleteAttribute});
     } else {
-	    menu.push({caption: 'Delete <' + elementName + '>', action: Xonomy.deleteElement});
+        menu.push({caption: 'Delete <' + elementName + '>', action: Xonomy.deleteElement});
     }
     return {menu: menu};
 };
 
 XonomyBuilder.convertSpec = function(elementName, elementSpec, schema) {
-	var result = {};
-	var parents = _findHolders(elementName, schema, 'children');
-	var holders = _findHolders(elementName, schema, 'wrappers');
-    var owners = parents.concat(holders);	
-	var menu = [];
+    var result = {};
+    var parents = _findHolders(elementName, schema, 'children');
+    var holders = _findHolders(elementName, schema, 'wrappers');
+    var owners = parents.concat(holders);   
+    var menu = [];
 
     var _isArray = Array.isArray;
 
@@ -133,11 +133,11 @@ XonomyBuilder.convertSpec = function(elementName, elementSpec, schema) {
     }
     
     function _isString(s) {
-	    return typeof s === 'string';
+        return typeof s === 'string';
     }
 
     function _isFunction(f) {
-	    return typeof f === 'function';
+        return typeof f === 'function';
     }
 
     function _findKeyByValue(object, value) {
@@ -145,20 +145,20 @@ XonomyBuilder.convertSpec = function(elementName, elementSpec, schema) {
     }
     
     function _getReferences(spec, key) {
-	    return spec[key]
-		    ? spec[key].map(function (child) { return _isString(child) ? child : child.name; })
-	    : [];
+        return spec[key]
+            ? spec[key].map(function (child) { return _isString(child) ? child : child.name; })
+        : [];
     }
 
     function _findHolders(elementName, schema, type) {
-	    var holders = [];
-	    Object.keys(schema.elements).forEach(function (key) {
-		    var spec = schema.elements[key];
-		    var siblings = _getReferences(spec, type);
-		    if (siblings.indexOf(elementName) != -1)
-			    holders.push(spec);
-	    });
-	    return holders;
+        var holders = [];
+        Object.keys(schema.elements).forEach(function (key) {
+            var spec = schema.elements[key];
+            var siblings = _getReferences(spec, type);
+            if (siblings.indexOf(elementName) != -1)
+                holders.push(spec);
+        });
+        return holders;
     }
 
     function _hideIfAll(items) {
@@ -168,17 +168,17 @@ XonomyBuilder.convertSpec = function(elementName, elementSpec, schema) {
         }
     }
 
-	if (holders.length) {
-		menu.push({
-			caption: 'Unwrap <' + elementName + '>',
-			action: Xonomy.unwrap,
-		});
-	} else if (parents.length) {
-		menu.push({
-			caption: 'Delete <' + elementName + '>',
-			action: Xonomy.deleteElement,
-		});
-	}
+    if (holders.length) {
+        menu.push({
+            caption: 'Unwrap <' + elementName + '>',
+            action: Xonomy.unwrap,
+        });
+    } else if (parents.length) {
+        menu.push({
+            caption: 'Delete <' + elementName + '>',
+            action: Xonomy.deleteElement,
+        });
+    }
 
     if (elementSpec.menu) {
         menu = menu.concat(elementSpec.menu.map(function (item) {
@@ -186,18 +186,18 @@ XonomyBuilder.convertSpec = function(elementName, elementSpec, schema) {
     }
 
     var attrMenu = [];
-	if (elementSpec.attributes) {
+    if (elementSpec.attributes) {
         var groups = [];
-		elementSpec.attributes.forEach(function(attributeSpec) {
-			if (_isString(attributeSpec)) {
-				attributeSpec = {name: attributeSpec};
+        elementSpec.attributes.forEach(function(attributeSpec) {
+            if (_isString(attributeSpec)) {
+                attributeSpec = {name: attributeSpec};
             }
-			var value = attributeSpec.value || '?';
-			var item = {
-				caption: attributeSpec.caption || 'Add @' + attributeSpec.name + '="' + value + '"',
-				action: Xonomy.newAttribute,
-				actionParameter: {name: attributeSpec.name, value: value},
-			};
+            var value = attributeSpec.value || '?';
+            var item = {
+                caption: attributeSpec.caption || 'Add @' + attributeSpec.name + '="' + value + '"',
+                action: Xonomy.newAttribute,
+                actionParameter: {name: attributeSpec.name, value: value},
+            };
             item.hideIf = function (jsElement) {
                 if (jsElement.hasAttribute(attributeSpec.name))
                     return true;
@@ -211,7 +211,7 @@ XonomyBuilder.convertSpec = function(elementName, elementSpec, schema) {
                 group.menu.push(item);
             else
                 groups.push({id: group, menu: [item]});
-		});
+        });
         groups.forEach(function(group) {
             if (group.id) {
                 attrMenu.push( {caption: 'Add '+group.id, menu: group.menu, hideIf: _hideIfAll(group.menu)} );
@@ -220,9 +220,9 @@ XonomyBuilder.convertSpec = function(elementName, elementSpec, schema) {
             }
         });
 
-		result.attributes = {};
-		elementSpec.attributes.forEach(function (attributeSpec) {
-			var name = _isString(attributeSpec) ? attributeSpec : attributeSpec.name;
+        result.attributes = {};
+        elementSpec.attributes.forEach(function (attributeSpec) {
+            var name = _isString(attributeSpec) ? attributeSpec : attributeSpec.name;
             var att = { asker: Xonomy.askString };
 
             if (attributeSpec.type) {
@@ -256,33 +256,33 @@ XonomyBuilder.convertSpec = function(elementName, elementSpec, schema) {
             if (attributeSpec.menu)
                 att.menu = att.menu.concat(attributeSpec.menu);
             result.attributes[name] = att;
-		});
-	}
+        });
+    }
     var childrenMenu = [];
-	if (elementSpec.children) {
+    if (elementSpec.children) {
         var groups = [];
-		elementSpec.children.forEach(function(childSpec) {
-			if (_isString(childSpec))
-				childSpec = {name: childSpec};
-			var item = {
-				caption: childSpec.caption || 'Add <' + childSpec.name + '>',
-				action: Xonomy.newElementChild,
-				actionParameter: XonomyBuilder.xml(childSpec.name, XonomyBuilder.mandatoryAttrs(schema.elements[childSpec.name]), '', schema.namespaces),
-			};
-			item.hideIf = function (jsElement) {
-				if (childSpec.max && jsElement.getChildElements(childSpec.name).length >= childSpec.max)
+        elementSpec.children.forEach(function(childSpec) {
+            if (_isString(childSpec))
+                childSpec = {name: childSpec};
+            var item = {
+                caption: childSpec.caption || 'Add <' + childSpec.name + '>',
+                action: Xonomy.newElementChild,
+                actionParameter: XonomyBuilder.xml(childSpec.name, XonomyBuilder.mandatoryAttrs(schema.elements[childSpec.name]), '', schema.namespaces),
+            };
+            item.hideIf = function (jsElement) {
+                if (childSpec.max && jsElement.getChildElements(childSpec.name).length >= childSpec.max)
                     return true;
                 if (childSpec.condition && !childSpec.condition(jsElement))
                     return true;
                 return false;
-			};
+            };
             var id = childSpec.group || '';
             var group = groups.find((group) => group.id === id );
             if (group)
                 group.menu.push(item);
             else
                 groups.push({id: id, menu: [item]});
-		});
+        });
         groups.forEach(function(group) {
             if (group.id) {
                 childrenMenu.push({caption: 'Add '+group.id+' ...', menu: group.menu, hideIf: _hideIfAll(group.menu)});
@@ -290,7 +290,7 @@ XonomyBuilder.convertSpec = function(elementName, elementSpec, schema) {
                 childrenMenu = childrenMenu.concat(group.menu);
             }
         });
-	}
+    }
 
     if (menu.length + attrMenu.length + childrenMenu.length > 8) {
         menu.push({caption: "Add @attribute ...", menu: attrMenu, hideIf: _hideIfAll(attrMenu)});
@@ -302,71 +302,71 @@ XonomyBuilder.convertSpec = function(elementName, elementSpec, schema) {
         menu = menu.concat(attrMenu).concat(childrenMenu);
     }
 
-	if (elementSpec.wrappers) {
-		result.inlineMenu = elementSpec.wrappers.map(function(wrapper) {
+    if (elementSpec.wrappers) {
+        result.inlineMenu = elementSpec.wrappers.map(function(wrapper) {
             if (_isString(wrapper))
                 wrapper = {name: wrapper};
             if (!wrapper.placeholder)
                 wrapper.placeholder = '$';
             if (wrapper.template === undefined)
                 wrapper.template = XonomyBuilder.xml(wrapper.name, {}, wrapper.placeholder, schema.namespaces);
-			var result = {
-				caption: "Wrap with <"+wrapper.name+">",
-				action: Xonomy.wrap,
-				actionParameter: {template: wrapper.template, placeholder: wrapper.placeholder}
-			};
+            var result = {
+                caption: "Wrap with <"+wrapper.name+">",
+                action: Xonomy.wrap,
+                actionParameter: {template: wrapper.template, placeholder: wrapper.placeholder}
+            };
             if (wrapper.condition)
                 result.hideIf = (js) => !wrapper.condition(js);
             return result;
-		});
-	}
-	result.menu = menu;
-	var before = elementSpec.before || [];
-	var after = elementSpec.after || [];
-	if (elementSpec.order) {
-		parents.forEach(function (parent) {
-			var siblings = _getReferences(parent, 'children');
-			var index = siblings.indexOf(elementName);
-			after = after.concat(siblings.slice(0, index));
-			before = before.concat(siblings.slice(index+1));
-		});
-	}
-	if (before.length)
-		result.mustBeBefore = before;
-	if (after.length)
-		result.mustBeAfter = after;
-	if (elementSpec.text)
-		result.hasText = elementSpec.text;
-	if (elementSpec.oneline)
-		result.oneliner = elementSpec.oneline;
-	if (elementSpec.collapsed)
-		result.collapsed = elementSpec.collapsed;
+        });
+    }
+    result.menu = menu;
+    var before = elementSpec.before || [];
+    var after = elementSpec.after || [];
+    if (elementSpec.order) {
+        parents.forEach(function (parent) {
+            var siblings = _getReferences(parent, 'children');
+            var index = siblings.indexOf(elementName);
+            after = after.concat(siblings.slice(0, index));
+            before = before.concat(siblings.slice(index+1));
+        });
+    }
+    if (before.length)
+        result.mustBeBefore = before;
+    if (after.length)
+        result.mustBeAfter = after;
+    if (elementSpec.text)
+        result.hasText = elementSpec.text;
+    if (elementSpec.oneline)
+        result.oneliner = elementSpec.oneline;
+    if (elementSpec.collapsed)
+        result.collapsed = elementSpec.collapsed;
     if (elementSpec.readonly)
         result.isReadOnly = elementSpec.readonly;
 
     if (owners.length) {
-	    result.canDropTo = owners.map( (owner) => _findKeyByValue(schema.elements, owner) );
+        result.canDropTo = owners.map( (owner) => _findKeyByValue(schema.elements, owner) );
     }
     result.validate = XonomyBuilder.elementValidator(elementSpec);
-	return result;
+    return result;
 };
 
 XonomyBuilder.convertSchema = function(schema, preprocess, postprocess) {
     preprocess = preprocess || function(elementName, elementSpec, schema) { return elementSpec; };
     postprocess = postprocess || function(elementName, xonomySpec) { return xonomySpec; };
-	var xschema = {};
+    var xschema = {};
     xschema.onchange = schema.onchange || function() {};
-	xschema.elements = {};
+    xschema.elements = {};
     Object.keys(schema.elements).forEach(function (elementName) {
-		var elementSpec = schema.elements[elementName];
+        var elementSpec = schema.elements[elementName];
         elementSpec = preprocess(elementName, elementSpec, schema);
-		var xspec = XonomyBuilder.convertSpec(elementName, elementSpec, schema);
+        var xspec = XonomyBuilder.convertSpec(elementName, elementSpec, schema);
         xspec = postprocess(elementName, xspec);
-		xschema.elements[elementName] = xspec;
-	});
+        xschema.elements[elementName] = xspec;
+    });
     xschema.validate = schema.validate || XonomyBuilder.validator(xschema);
     xschema.unknownElement = schema.unknown || XonomyBuilder.unknown;
     xschema.unknownAttribute = schema.unknown || XonomyBuilder.unknown;
-	return xschema;
+    return xschema;
 };
 
