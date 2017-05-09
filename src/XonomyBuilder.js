@@ -168,6 +168,15 @@ XonomyBuilder.convertSpec = function(elementName, elementSpec, schema) {
         }
     }
 
+    function _mapMenuItem(item) {
+        return {
+            caption: item.caption,
+            action: item.action,
+            actionParameter: item.parameter,
+            hideIf: (jsElement) => item.condition && !item.condition(jsElement)
+        };
+    }
+
     if (holders.length) {
         menu.push({
             caption: 'Unwrap <' + elementName + '>',
@@ -181,8 +190,7 @@ XonomyBuilder.convertSpec = function(elementName, elementSpec, schema) {
     }
 
     if (elementSpec.menu) {
-        menu = menu.concat(elementSpec.menu.map(function (item) {
-            return {caption: item.caption, action: item.action, actionParameter: item.parameter}; }));
+        menu = menu.concat(elementSpec.menu.map(_mapMenuItem));
     }
 
     var attrMenu = [];
@@ -254,7 +262,7 @@ XonomyBuilder.convertSpec = function(elementName, elementSpec, schema) {
             if (!attributeSpec.mandatory)
                 att.menu = [{ caption: 'Delete @' + name, action: Xonomy.deleteAttribute }];
             if (attributeSpec.menu)
-                att.menu = att.menu.concat(attributeSpec.menu);
+                att.menu = att.menu.concat(attributeSpec.menu.map(_mapMenuItem));
             result.attributes[name] = att;
         });
     }
