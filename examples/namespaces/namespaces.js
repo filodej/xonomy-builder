@@ -1,5 +1,10 @@
 'use strict';
 
+function setEditorMode(htmlID, mode) {
+    Xonomy.setMode(mode);
+	Xonomy.clickoff();
+}
+
 var schema = {
     namespaces: {
         'xmlns:svg': 'http://www.w3.org/2000/svg'
@@ -12,6 +17,10 @@ var schema = {
     },
     elements: {  
         'svg:svg': {
+            menu: [
+                {caption: "Nerd mode", action: setEditorMode, parameter: 'nerd', condition: () => Xonomy.mode === 'laic'},
+                {caption: "Laic mode", action: setEditorMode, parameter: 'laic', condition: () => Xonomy.mode === 'nerd'}
+            ],
             attributes: [
                 {name: 'version', mandatory: true},
                 'width',

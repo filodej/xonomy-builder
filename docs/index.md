@@ -196,9 +196,65 @@ Note the following facts:
   - `asker` array contains `null` and so allows an open set of values
   - `validate` specifies regular expression used for validation
 
+### Menu
+
+If we extend the *Source schema* with custom menu definition:
+
+```js
+function setMode(htmlID, mode) {
+    Xonomy.setMode(mode);
+    Xonomy.clickoff();
+}
+
+var schema = {
+    types: {
+        boolean : { 
+            asker: ['true', 'false'],
+        },
+        length : { 
+            asker: ['10pt', '10px', '10in', '10mm', '10%', null],
+            validate: /^[+-]?([0-9]*\.)?[0-9]+(pt|px|in|pc|mm|cm|em|%)$/
+        }
+    },
+    elements: {  
+        root: {
+            menu: [
+                {caption: "Nerd mode", action: setMode, parameter: 'nerd', condition: ()=>Xonomy.mode==='laic'},
+                {caption: "Laic mode", action: setMode, parameter: 'laic', condition: ()=>Xonomy.mode==='nerd'}
+            ],
+            attributes: [
+                {name: 'version', mandatory: true}
+            ],
+            children: [
+                {name: 'first', max: 1},
+                {name: 'second',  max: 2}
+            ]
+         },
+        first: {
+            attributes: [
+                {name: 'a', mandatory: true, value: 'true', type: 'boolean'},
+                {name: 'b', type: 'length'}
+            ],
+            order: true
+        },
+        second: {
+            attributes: ['c'],
+            order: true
+        }
+    }
+};
+```
+... then we can perform a custom action like changing the Xonomy editor mode from *Nerd* to *Laic* 
+	(or anything else):
+
+<iframe src="https://rawgit.com/filodej/xonomy-builder/master/examples/menu/index.html" 
+		width="100%" height="200px" style="background-color:#f6f8fa;">&nbsp;</iframe>
+
+
 ### Namespaces
 
-*Source schema* for a simple SVG editor can look as follows:
+There is a support for XML namespaces. 
+For example a *Source schema* for a simple SVG editor can look as follows:
 
 ```js
 var schema = {
@@ -213,6 +269,10 @@ var schema = {
     },
     elements: {  
         'svg:svg': {
+            menu: [
+                {caption: "Nerd mode", action: setEditorMode, parameter: 'nerd', condition: () => Xonomy.mode === 'laic'},
+                {caption: "Laic mode", action: setEditorMode, parameter: 'laic', condition: () => Xonomy.mode === 'nerd'}
+            ],
             attributes: [
                 {name: 'version', mandatory: true},
                 'width',
@@ -249,10 +309,6 @@ It leads to following editor configuration:
 		width="100%" height="200px" style="background-color:#f6f8fa;">&nbsp;</iframe>
 
 ### Validation
-
-@TBD
-
-### Menu
 
 @TBD
 
