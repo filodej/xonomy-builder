@@ -20,13 +20,14 @@ Xonomy.render(xmarkup, xonomy, xschema);
 
 ### Schema
 
-| Property   | Type   | Default | Description |
-| -------- | -------- | ------- | ----------- |
-| types    | array    | []      | List of [Type Declarations](#type-declaration) |
-| elements | array    | -       | List of [Element Declarations](#element-declaration) |
-| onchange | function | null    | Callback function to be called on any change |
-| validate | function | null    | Custom validation function called on any change  |
-| unknown  | function | null    | Function returning specification for unknown element or attribute |
+| Property   | Type     | Default | Description |
+| ---------- | -------- | ------- | ----------- |
+| types      | array    | []      | List of [Type Declarations](#type-declaration) |
+| elements   | array    | -       | List of [Element Declarations](#element-declaration) |
+| namespaces | object   | {}      | Map of [Namespace Declarations](#namespace-declaration) |
+| onchange   | function | null    | Callback function to be called on any change |
+| validate   | function | null    | Custom validation function called on any change  |
+| unknown    | function | null    | Function returning specification for unknown element or attribute |
 
 ### Element Declaration
 
@@ -54,6 +55,13 @@ Xonomy.render(xmarkup, xonomy, xschema);
 | condition  | function | null         | A predicate determining a presence of conditional attribute  |
 | mandatory  | boolean  | false        | Mandatory attributes are created automatically and cannot be deleted |
 | menu       | array    | []           | List of [Menu Items](#menu-item) |
+
+### Namespace Declaration
+
+XML namespace consists of following parts:
+
+- Namespace prefix ... local alias representing the namespace in current scope (e.g. `xmlns:svg`)
+- Namespace name ... global namespace URI (e.g. `http://www.w3.org/2000/svg`)
 
 ### Element Reference
 
@@ -188,3 +196,70 @@ Note the following facts:
   - `asker` array contains `null` and so allows an open set of values
   - `validate` specifies regular expression used for validation
 
+### Namespaces
+
+*Source schema* for a simple SVG editor can look as follows:
+
+```js
+var schema = {
+    namespaces: {
+        'xmlns:svg': 'http://www.w3.org/2000/svg'
+    },
+    types: {
+        length : { 
+            asker: ['10pt', '10px', '10in', '10mm', '10%', null],
+            validate: /^[+-]?([0-9]*\.)?[0-9]+(pt|px|in|pc|mm|cm|em|%)$/
+        }
+    },
+    elements: {  
+        'svg:svg': {
+            attributes: [
+                {name: 'version', mandatory: true},
+                'width',
+                'height'
+            ],
+            children: ['svg:g', 'svg:rect', 'svg:circle'],
+        },
+        'svg:g': {
+            children: ['svg:g', 'svg:rect', 'svg:circle'],
+        },
+        'svg:rect': {
+            attributes: [
+                {name:'x', type:'length'},
+                {name:'y', type:'length'},
+                {name:'width', type:'length', mandatory:true},
+                {name:'height', type:'length', mandatory:true},
+                'style'
+            ]
+        },
+        'svg:circle': {
+            attributes: [
+                {name:'cx', type:'length'},
+                {name:'cy', type:'length'},
+                {name:'r', type:'length', mandatory:true},
+                'style'
+            ]
+        }
+    }
+};
+```
+It leads to following editor configuration:
+
+<iframe src="https://rawgit.com/filodej/xonomy-builder/master/examples/namespaces/index.html" 
+		width="100%" height="200px" style="background-color:#f6f8fa;">&nbsp;</iframe>
+
+### Validation
+
+@TBD
+
+### Menu
+
+@TBD
+
+### Preprocessing
+
+@TBD
+
+### Postprocessing
+
+@TBD
